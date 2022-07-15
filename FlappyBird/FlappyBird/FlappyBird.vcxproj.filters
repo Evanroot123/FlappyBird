@@ -16,6 +16,18 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{f114d5f3-82e0-465b-ba07-0469186e4b4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\imgui">
+      <UniqueIdentifier>{59f3194f-5170-457d-aa6b-7bbbecaeabe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\stb">
+      <UniqueIdentifier>{a0d32a93-4864-4d6f-a28b-876024feb7a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glad">
+      <UniqueIdentifier>{273c6665-2cf4-4fee-a954-6ec57d37456e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\glad">
+      <UniqueIdentifier>{d6ca456e-cdd9-4664-9375-7e23a7ba5d13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -42,5 +54,46 @@
     <ClCompile Include="..\Dependencies\imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\Dependencies\glad\src\glad.c">
+      <Filter>Source Files\glad</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Dependencies\imgui\imconfig.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imgui.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imgui_internal.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imstb_rectpack.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imstb_textedit.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\imgui\imstb_truetype.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\stb\stb_image.h">
+      <Filter>Header Files\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\glad\include\KHR\khrplatform.h">
+      <Filter>Header Files\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\glad\include\glad\glad.h">
+      <Filter>Header Files\glad</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
