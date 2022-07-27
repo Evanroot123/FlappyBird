@@ -28,6 +28,9 @@
     <Filter Include="Header Files\glad">
       <UniqueIdentifier>{d6ca456e-cdd9-4664-9375-7e23a7ba5d13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{7e04817c-9849-484e-a28e-bfe56426368a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -95,5 +98,22 @@
     <ClInclude Include="..\Dependencies\glad\include\glad\glad.h">
       <Filter>Header Files\glad</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\shader4.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="..\Shaders\shader.fs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="..\Shaders\shader5.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="..\Shaders\textures.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="..\Shaders\textures.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

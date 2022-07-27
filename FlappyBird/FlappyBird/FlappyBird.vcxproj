@@ -157,6 +157,13 @@
     <ClInclude Include="..\Dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="..\Dependencies\stb\stb_image.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\shader.fs" />
+    <None Include="..\Shaders\shader4.vs" />
+    <None Include="..\Shaders\shader5.vs" />
+    <None Include="..\Shaders\textures.frag" />
+    <None Include="..\Shaders\textures.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
