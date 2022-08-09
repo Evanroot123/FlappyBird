@@ -19,10 +19,13 @@ void exerciseOne(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& V
 void exerciseTwo(unsigned int& shaderProgram, unsigned int VAO[], unsigned int VBO[]);
 void exerciseThree(unsigned int& program1, unsigned int& program2, unsigned int VAO[], unsigned int VBO[]);
 void exerciseFour(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO);
-void textures(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO, unsigned int& texture);
+void textures(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO, unsigned int& texture1, unsigned int& texture2);
 unsigned int shaderStuff(const char* vertexPath, const char* fragmentPath);
 unsigned int compileShader(const char* vertexShaderSource, const char* fragmentShaderSource);
 void shaderStuff2(unsigned int& program1, unsigned int& program2);
+void processInput(GLFWwindow* window);
+
+float mixValue = 0.2f;
 
 int main(void)
 {
@@ -64,20 +67,30 @@ int main(void)
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    unsigned int program, VAO, VBO, EBO, texture;
-    textures(program, VAO, VBO, EBO, texture);
+    unsigned int program, VAO, VBO, EBO, texture1, texture2;
+    textures(program, VAO, VBO, EBO, texture1, texture2);
     
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        // input
+        processInput(window);
+
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw shit
         //int horizontalOffsetLocation = glGetUniformLocation(program, "horizontalOffset");
-        glUseProgram(program);
+        
         //glUniform1f(horizontalOffsetLocation, 0.5);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(glGetUniformLocation(program, "texture1"), 0);
+        glUniform1i(glGetUniformLocation(program, "texture2"), 1);
+        glUniform1f(glGetUniformLocation(program, "mixValue"), mixValue);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        glUseProgram(program);
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -98,7 +111,21 @@ int main(void)
     return 0;
 }
 
-
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        mixValue += 0.001f;
+        if (mixValue > 1.0f)
+            mixValue = 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        mixValue -= 0.001f;
+        if (mixValue < 0.0f)
+            mixValue = 0.0f;
+    }
+}
 
 void exerciseOne(unsigned int &shaderProgram, unsigned int &VAO, unsigned int &VBO)
 {
@@ -197,37 +224,19 @@ void exerciseFour(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& 
     shaderProgram = shaderStuff("..\\Shaders\\shader5.vs", "..\\Shaders\\shader.fs");
 }
 
-void textures(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO, unsigned int& texture)
+void textures(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO, unsigned int& EBO, unsigned int& texture1, unsigned int& texture2)
 {
     float vertices[] = {
          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
          0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f 
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
     };
 
     unsigned int indices[] = {
         0, 1, 3,
         1, 2, 3
     };
-
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load("..\\Resources\\container.jpg", &width, &height, &nrChannels, 0);
-
-    if (!data)
-    {
-        std::cout << "Not DATA" << std::endl;
-    }
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -242,6 +251,38 @@ void textures(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO,
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+
+    int width1, height1, width2, height2, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data1 = stbi_load("..\\Resources\\container.jpg", &width1, &height1, &nrChannels, 0);
+    unsigned char* data2 = stbi_load("..\\Resources\\awesomeface.png", &width2, &height2, &nrChannels, 0);
+    //unsigned char* data2 = stbi_load("..\\Resources\\Boomad-green-dark.png", &width2, &height2, &nrChannels, 0);
+
+    if (!data1 or !data2)
+    {
+        std::cout << "Not DATA" << std::endl;
+    }
+
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width1, height1, 0, GL_RGB, GL_UNSIGNED_BYTE, data1);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width2, height2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(data1);
+    stbi_image_free(data2);
 
     shaderProgram = shaderStuff("..\\Shaders\\textures.vert", "..\\Shaders\\textures.frag");
 }
