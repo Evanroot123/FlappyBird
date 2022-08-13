@@ -2,13 +2,16 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
-//#include "imgui_impl_opengl3_loader.h"
 #include "imgui_impl_opengl3.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include <GLFW/glfw3.h>
+
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <string>
@@ -59,12 +62,7 @@ int main(void)
     //ImGui::StyleColorsDark();
     //ImGui_ImplGlfw_InitForOpenGL(window, true);
     //ImGui_ImplOpenGL3_Init("#version 330 core");
-
-    // opengl stuff
-
-    // image loading stuff
     
-
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     unsigned int program, VAO, VBO, EBO, texture1, texture2;
@@ -73,6 +71,15 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+
+        glm::mat4 trans2 = glm::mat4(1.0f);
+        trans2 = glm::translate(trans2, glm::vec3(-0.5f, 0.5f, 0.0f));
+        trans2 = glm::rotate(trans2, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+        //trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
         // input
         processInput(window);
 
@@ -81,8 +88,8 @@ int main(void)
 
         // draw shit
         //int horizontalOffsetLocation = glGetUniformLocation(program, "horizontalOffset");
-        
-        //glUniform1f(horizontalOffsetLocation, 0.5);
+        unsigned int transformLoc = glGetUniformLocation(program, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
         glUniform1i(glGetUniformLocation(program, "texture1"), 0);
         glUniform1i(glGetUniformLocation(program, "texture2"), 1);
         glUniform1f(glGetUniformLocation(program, "mixValue"), mixValue);
@@ -94,7 +101,11 @@ int main(void)
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans2));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -246,11 +257,9 @@ void textures(unsigned int& shaderProgram, unsigned int& VAO, unsigned int& VBO,
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
 
     int width1, height1, width2, height2, nrChannels;
     stbi_set_flip_vertically_on_load(true);
