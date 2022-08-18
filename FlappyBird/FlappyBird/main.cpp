@@ -1,56 +1,43 @@
-#include "glad/glad.h"
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #include <iostream>
-#include <string>
-#include <sstream>
 #include <fstream>
-
-#include "game.h"
-#include "rendering.h"
+#include <sstream>
+#include <string>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void drawTexture(const char* file);
-unsigned int shaderStuff(const char* vertexPath, const char* fragmentPath);
-unsigned int compileShader(const char* vertexShaderSource, const char* fragmentShaderSource);
+unsigned int ShaderStuff(const char* vertexPath, const char* fragmentPath);
+void drawBackground(const char* image, float scale = 1.0f);
+void drawUI();
 
-int main(void)
+const unsigned int SCR_WIDTH = 400;
+const unsigned int SCR_HEIGHT = 600;
+
+int main()
 {
-    GLFWwindow* window;
-    Game game;
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
+    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(game.settings.screenWidth, game.settings.screenHeight, game.settings.title.c_str(), NULL, NULL);
-    if (!window)
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "GuiTesting", NULL, NULL);
+    if (window == NULL)
     {
+        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
-
-    /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    //glfwSwapInterval(1); // Enable vsync
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -58,46 +45,93 @@ int main(void)
         return -1;
     }
 
-    Renderer renderer;
-    
-    /* Loop until the user closes the window */
+    // imgui
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // shader stuff
+    //unsigned int program = ShaderStuff("shader.vert", "shader.frag");
+    //
+    //float vertices[] = {
+    //     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
+    //    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
+    //     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top 
+    //};
+    //
+    //unsigned int VBO, VAO;
+    //glGenVertexArrays(1, &VAO);
+    //glGenBuffers(1, &VBO);
+    //glBindVertexArray(VAO);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    //glEnableVertexAttribArray(1);
+    //
+    //glUseProgram(program);
+
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // input
         processInput(window);
 
-        drawTexture("..\\Resources\\Sprites\\awesomeface.png");
-        //renderer.drawTriangle();
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Swap front and back buffers */
+        // feed inputs to dear imgui, start new frame
+        //ImGui_ImplOpenGL3_NewFrame();
+        //ImGui_ImplGlfw_NewFrame();
+        //ImGui::NewFrame();
+
+        //glBindVertexArray(VAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        drawBackground("..\\Resources\\Sprites\\background-day.png");
+        drawBackground("..\\Resources\\Sprites\\message.png", 0.8f);
+
+        //drawUI();
+
         glfwSwapBuffers(window);
-
-        /* Poll for and process events */
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    //glDeleteVertexArrays(1, &VAO);
+    //glDeleteBuffers(1, &VBO);
     glfwTerminate();
     return 0;
 }
 
-void drawTexture(const char* file)
-{
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
 
+void drawBackground(const char* image, float scale)
+{
     float vertices[] = {
         -1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
         1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
         1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
         1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
     };
 
-    unsigned int VAO, VBO;
+    // scale position vertices by scale
+    for (int i = 0; i < sizeof(vertices) / sizeof(vertices[0]); i += 5)
+    {
+        vertices[i] = vertices[i] * scale;
+        vertices[i + 1] = vertices[i + 1] * scale;
+        vertices[i + 2] = vertices[i + 2] * scale;
+    }
+
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
@@ -108,17 +142,19 @@ void drawTexture(const char* file)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    unsigned int program = shaderStuff("..\\Shaders\\texture.vert", "..\\Shaders\\texture.frag");
-
+    unsigned int program = ShaderStuff("..\\Shaders\\texture.vert", "..\\Shaders\\texture.frag");
 
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(image, &width, &height, &nrChannels, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
@@ -129,12 +165,58 @@ void drawTexture(const char* file)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUseProgram(program);
-    //glBindVertexArray(VAO);
+
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    //glBindVertexArray(0);
 }
 
-unsigned int shaderStuff(const char* vertexPath, const char* fragmentPath)
+void drawUI()
+{
+    /*unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load("..\\Resources\\sprites\\background-day.png", &width, &height, &nrChannels, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(data);
+
+    bool what = true;
+    ImGui::SetWindowPos(ImVec2(0, 0));
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+
+    ImGui::Begin("Demo window", &what, windowFlags);
+
+    ImVec2 size(90, 40), uv0(0, 0), uv1(1, 1);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+    ImGui::ImageButton("StartButton", (void*)texture, size, uv0, uv1);
+    ImGui::PopStyleVar();
+    ImGui::End();
+
+    // Render dear imgui into screen
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+}
+
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
+}
+
+unsigned int ShaderStuff(const char* vertexPath, const char* fragmentPath)
 {
     std::string vertexCode;
     std::string fragmentCode;
@@ -156,83 +238,38 @@ unsigned int shaderStuff(const char* vertexPath, const char* fragmentPath)
     }
     catch (std::ifstream::failure e)
     {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+        std::cout << "Error compiling shader" << std::endl;
     }
-
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
 
-    return compileShader(vShaderCode, fShaderCode);
-}
-
-unsigned int compileShader(const char* vertexShaderSource, const char* fragmentShaderSource)
-{
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
+    unsigned int vertex, fragment, program;
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vShaderCode, NULL);
+    glCompileShader(vertex);
     int success;
     char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
+    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "Vertex shader compilation failed, YOU'RE FUCKED BOIIIEEE\n" << infoLog << std::endl;
+        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fShaderCode, NULL);
+    glCompileShader(fragment);
+    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "Fragment shader compilation failed, YOU'RE FUCKED BOIIIEEE\n" << infoLog << std::endl;
+        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+    program = glCreateProgram();
+    glAttachShader(program, vertex);
+    glAttachShader(program, fragment);
+    glLinkProgram(program);
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
 
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "Shader program linking failed, YOU'RE FUCKED BOIIIEEE\n" << infoLog << std::endl;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    return shaderProgram;
+    return program;
 }
-
-
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void processInput(GLFWwindow* window)
-{
-    /*if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    {
-        mixValue += 0.001f;
-        if (mixValue > 1.0f)
-            mixValue = 1.0f;
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-    {
-        mixValue -= 0.001f;
-        if (mixValue < 0.0f)
-            mixValue = 0.0f;
-    }*/
-}
-
