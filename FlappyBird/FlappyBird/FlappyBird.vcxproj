@@ -181,10 +181,10 @@
     <None Include="..\Shaders\shader5.vs" />
     <None Include="..\Shaders\simple.frag" />
     <None Include="..\Shaders\simple.vert" />
+    <None Include="..\Shaders\texture.frag" />
+    <None Include="..\Shaders\texture.vert" />
     <None Include="..\Shaders\textures.frag" />
     <None Include="..\Shaders\textures.vert" />
-    <None Include="texture.frag" />
-    <None Include="texture.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -151,16 +151,16 @@
     <None Include="..\Shaders\textures.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
-    <None Include="texture.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="texture.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
     <None Include="..\Shaders\simple.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="..\Shaders\simple.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="..\Shaders\texture.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="..\Shaders\texture.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>
