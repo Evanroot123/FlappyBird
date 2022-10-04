@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <chrono>
 
 #include "rendering.h"
 
@@ -58,8 +59,14 @@ int main()
     Renderer renderer;
     renderer.genShit();
 
+    int frames = 0;
+    auto start = std::chrono::steady_clock::now();
+    auto end = std::chrono::steady_clock::now();
+    auto printTime = std::chrono::steady_clock::now();
+    std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
+    
     while (!glfwWindowShouldClose(window))
-    {
+    {   
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -69,14 +76,25 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        
+        frames++;
+        end = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        start = std::chrono::steady_clock::now();
+        timeCollector += duration;
+
+        if (timeCollector >= std::chrono::microseconds(1000000))
+        {
+            std::cout << "average fps: " << frames << std::endl;
+            timeCollector = std::chrono::microseconds(0);
+            frames = 0;
+        }
     }
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    //glDeleteVertexArrays(1, &VAO);
-    //glDeleteBuffers(1, &VBO);
     glfwTerminate();
     return 0;
 }

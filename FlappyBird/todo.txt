@@ -1,0 +1,17 @@
+flappy bird todo:
+- pause function
+- track fps
+- decide how to control fps (probably try to unchain it from screen draw rate)
+- "animate" bird
+- handle user input
+- decide how to convert between world space and screen space
+- draw columns
+- "animate columns"
+- setup "levels"
+- organize drawing of game objects
+- collision detection
+- implement gravity for bird
+- scoring mechanism
+- figure out how to display numbers indicating score
+- sound effects
+- 

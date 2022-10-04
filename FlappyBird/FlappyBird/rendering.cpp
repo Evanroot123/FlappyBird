@@ -19,7 +19,8 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-
+    //glDeleteVertexArrays(1, &VAO);
+    //glDeleteBuffers(1, &VBO);
 }
 
 // load all the image resource files
