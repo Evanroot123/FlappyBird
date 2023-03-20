@@ -12,4 +12,7 @@ class Game {
 public:
 	Game();
 	Settings settings;
+	int playerX;
+	int playerY;
+	int playerRotation;
 };

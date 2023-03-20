@@ -1,6 +1,6 @@
 flappy bird todo:
 - pause function
-- track fps
+
 - decide how to control fps (probably try to unchain it from screen draw rate)
 - "animate" bird
 - handle user input
@@ -14,4 +14,6 @@ flappy bird todo:
 - scoring mechanism
 - figure out how to display numbers indicating score
 - sound effects
-- 
+
+completed:
+- track fps

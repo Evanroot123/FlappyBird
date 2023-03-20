@@ -57,12 +57,12 @@ int main()
     ImGui::StyleColorsDark();
 
     Renderer renderer;
-    renderer.genShit();
+    //renderer.genShit();
+    renderer.loadImages();
 
     int frames = 0;
     auto start = std::chrono::steady_clock::now();
     auto end = std::chrono::steady_clock::now();
-    auto printTime = std::chrono::steady_clock::now();
     std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
     
     while (!glfwWindowShouldClose(window))
@@ -72,7 +72,8 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        renderer.drawShit();
+        //renderer.drawShit();
+        renderer.drawPlayer();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
