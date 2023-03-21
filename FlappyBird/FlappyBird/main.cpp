@@ -58,11 +58,12 @@ int main()
 
     Renderer renderer;
     //renderer.genShit();
-    renderer.loadImages();
+    renderer.initializeData();
 
     int frames = 0;
     auto start = std::chrono::steady_clock::now();
     auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
     
     while (!glfwWindowShouldClose(window))
@@ -73,14 +74,14 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         //renderer.drawShit();
-        renderer.drawPlayer();
+        renderer.drawPlayer(duration);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
         
         frames++;
         end = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         start = std::chrono::steady_clock::now();
         timeCollector += duration;
 

@@ -27,22 +27,29 @@ Renderer::~Renderer()
     //glDeleteBuffers(1, &VBO);
 }
 
-// load all the image resource files
-void Renderer::loadImages()
+void Renderer::loadImage(const char* data, unsigned int& texture, bool flip)
 {
-    // load player image
     int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* playerData = stbi_load("..\\Resources\\Sprites\\bluebird-downflap.png", &width, &height, &nrChannels, 0);
-    glGenTextures(1, &playerTexture1);
-    glBindTexture(GL_TEXTURE_2D, playerTexture1);
+    stbi_set_flip_vertically_on_load(flip);
+    unsigned char* fileData = stbi_load(data, &width, &height, &nrChannels, 0);
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, playerData);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, fileData);
     glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(playerData);
+    stbi_image_free(fileData);
+}
+
+// load all the image resource files
+void Renderer::initializeData()
+{
+    // load player image 1
+    loadImage("..\\Resources\\Sprites\\bluebird-downflap.png", playerTexture1, true);
+    loadImage("..\\Resources\\Sprites\\bluebird-midflap.png", playerTexture2, true);
+    loadImage("..\\Resources\\Sprites\\bluebird-upflap.png", playerTexture3, true);
 
     float playerVertices[] = {
         1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // top right
@@ -67,9 +74,24 @@ void Renderer::loadImages()
     playerProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
 }
 
-void Renderer::drawPlayer()
+void Renderer::drawPlayer(std::chrono::microseconds deltaTime)
 {
+    // need to handle switching between frames just use delta time probably
     // player matrix transforms - this is where we set the player position and size
+    static std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
+    static unsigned int currentTexture = playerTexture1;
+    timeCollector += deltaTime;
+    if (timeCollector > std::chrono::microseconds(100000))
+    {
+        timeCollector = std::chrono::microseconds(0);
+        if (currentTexture == playerTexture1)
+            currentTexture = playerTexture2;
+        else if (currentTexture == playerTexture2)
+            currentTexture = playerTexture3;
+        else
+            currentTexture = playerTexture1;
+    }
+
     glUseProgram(playerProgram);
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::scale(trans, glm::vec3(0.1, 0.1, 1.0));
@@ -77,7 +99,7 @@ void Renderer::drawPlayer()
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, playerTexture1);
+    glBindTexture(GL_TEXTURE_2D, currentTexture);
     glBindVertexArray(playerVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }

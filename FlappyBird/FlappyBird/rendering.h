@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 class Renderer {
 public:
 	Renderer();
@@ -11,9 +13,10 @@ public:
 	void genShit();
 	void drawShit();
 
-	void loadImages();
-	void drawPlayer();
+	void initializeData();
+	void drawPlayer(std::chrono::microseconds deltaTime);
 private:
+	void loadImage(const char* data, unsigned int& texture, bool flip);
 	unsigned int shaderStuff(const char* vertexPath, const char* fragmentPath);
 	unsigned int compileShader(const char* vertexShaderSource, const char* fragmentShaderSource);
 	unsigned int VAO, VBO, texture1, texture2, program;
