@@ -1,18 +1,13 @@
 #pragma once
 #include <string>
-
-struct Settings {
-	int screenHeight;
-	int screenWidth;
-	std::string title;
-};
+#include <vector>
+#include "gameobject.h"
 
 class Game {
 
 public:
+	std::vector<GameObject> gameObjects;
+
 	Game();
-	Settings settings;
-	int playerX;
-	int playerY;
-	int playerRotation;
+	void playerJump();
 };

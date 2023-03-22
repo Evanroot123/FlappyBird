@@ -46,7 +46,7 @@ void Renderer::loadImage(const char* data, unsigned int& texture, bool flip)
 // load all the image resource files
 void Renderer::initializeData()
 {
-    // load player image 1
+    // player images
     loadImage("..\\Resources\\Sprites\\bluebird-downflap.png", playerTexture1, true);
     loadImage("..\\Resources\\Sprites\\bluebird-midflap.png", playerTexture2, true);
     loadImage("..\\Resources\\Sprites\\bluebird-upflap.png", playerTexture3, true);
@@ -70,18 +70,30 @@ void Renderer::initializeData()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
     playerProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
+
+    // tube
+    loadImage("..\\Resources\\Sprites\\pipe-green.png", tubeTexture, true);
+    glGenVertexArrays(1, &tubeVAO);
+    glGenBuffers(1, &tubeVBO);
+    glBindVertexArray(tubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, tubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(playerVertices), playerVertices, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    tubeProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
 }
 
-void Renderer::drawPlayer(std::chrono::microseconds deltaTime)
+void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& deltaTime)
 {
     // need to handle switching between frames just use delta time probably
     // player matrix transforms - this is where we set the player position and size
     static std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
     static unsigned int currentTexture = playerTexture1;
     timeCollector += deltaTime;
-    if (timeCollector > std::chrono::microseconds(100000))
+    if (timeCollector > std::chrono::microseconds(112000))
     {
         timeCollector = std::chrono::microseconds(0);
         if (currentTexture == playerTexture1)
@@ -94,7 +106,9 @@ void Renderer::drawPlayer(std::chrono::microseconds deltaTime)
 
     glUseProgram(playerProgram);
     glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::scale(trans, glm::vec3(0.1, 0.1, 1.0));
+    trans = glm::translate(trans, glm::vec3(player.positionX, player.positionY, 0.0));
+    trans = glm::rotate(trans, glm::radians(player.rotation), glm::vec3(0.0, 0.0, 1.0));
+    trans = glm::scale(trans, glm::vec3(player.scaleX, player.scaleY, 1.0));
     unsigned int transformLoc = glGetUniformLocation(playerProgram, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     
@@ -102,6 +116,33 @@ void Renderer::drawPlayer(std::chrono::microseconds deltaTime)
     glBindTexture(GL_TEXTURE_2D, currentTexture);
     glBindVertexArray(playerVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawTube(GameObject& tube)
+{
+    glUseProgram(tubeProgram);
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(tube.positionX, tube.positionY, 0.0));
+    trans = glm::rotate(trans, glm::radians(tube.rotation), glm::vec3(0.0, 0.0, 1.0));
+    trans = glm::scale(trans, glm::vec3(tube.scaleX, tube.scaleY, 1.0));
+    unsigned int transformLoc = glGetUniformLocation(tubeProgram, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tubeTexture);
+    glBindVertexArray(tubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawGameObjects(std::vector<GameObject>& objects, const std::chrono::microseconds& deltaTime)
+{
+    for (auto& object : objects)
+    {
+        if (object.id == GameObjectType::player)
+            drawPlayer(object, deltaTime);
+        else if (object.id == GameObjectType::tube)
+            drawTube(object);
+    }
 }
 
 void Renderer::drawTexture(const char* file)

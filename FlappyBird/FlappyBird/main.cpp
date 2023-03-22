@@ -15,6 +15,7 @@
 #include <chrono>
 
 #include "rendering.h"
+#include "game.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -56,6 +57,8 @@ int main()
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
+    Game game;
+
     Renderer renderer;
     //renderer.genShit();
     renderer.initializeData();
@@ -67,18 +70,7 @@ int main()
     std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
     
     while (!glfwWindowShouldClose(window))
-    {   
-        processInput(window);
-
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        //renderer.drawShit();
-        renderer.drawPlayer(duration);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-        
+    {
         frames++;
         end = std::chrono::steady_clock::now();
         duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -91,6 +83,17 @@ int main()
             timeCollector = std::chrono::microseconds(0);
             frames = 0;
         }
+
+        processInput(window);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        //renderer.drawShit();
+        renderer.drawGameObjects(game.gameObjects, duration);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -105,6 +108,10 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+    }
+    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
