@@ -32,7 +32,6 @@ void Renderer::loadImage(const char* data, unsigned int& texture, int& width, in
     int nrChannels;
     stbi_set_flip_vertically_on_load(flip);
     unsigned char* fileData = stbi_load(data, &width, &height, &nrChannels, 0);
-    std::cout << width << ", " << height << std::endl;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -40,7 +39,7 @@ void Renderer::loadImage(const char* data, unsigned int& texture, int& width, in
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, fileData);
-    //glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(fileData);
 }
 
@@ -73,6 +72,7 @@ void Renderer::initializeData()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    
     playerProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
 
     // tube
@@ -111,7 +111,6 @@ void Renderer::initializeData()
         1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
     };
 
-    unsigned int backgroundVAO, backgroundVBO;
     glGenVertexArrays(1, &backgroundVAO);
     glGenBuffers(1, &backgroundVBO);
     glBindVertexArray(backgroundVAO);
@@ -151,9 +150,9 @@ void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& d
     unsigned int transformLoc = glGetUniformLocation(playerProgram, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     
+    glBindVertexArray(playerVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, currentTexture);
-    glBindVertexArray(playerVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
@@ -176,11 +175,9 @@ void Renderer::drawTube(GameObject& tube)
 void Renderer::drawBackground()
 {
     glUseProgram(backgroundProgram);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-    unsigned int sampler = glGetUniformLocation(playerProgram, "texture1");
-    glUniform1i(sampler, 0);
     glBindVertexArray(backgroundVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, backgroundTexture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 

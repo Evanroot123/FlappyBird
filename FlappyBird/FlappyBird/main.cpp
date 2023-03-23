@@ -26,7 +26,7 @@ const unsigned int SCREEN_HEIGHT = 600;
 int main()
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -53,7 +53,7 @@ int main()
     ImGuiIO& io = ImGui::GetIO();
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
+    ImGui_ImplOpenGL3_Init("#version 430 core");
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
@@ -69,7 +69,7 @@ int main()
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
-    
+
     while (!glfwWindowShouldClose(window))
     {
         frames++;
