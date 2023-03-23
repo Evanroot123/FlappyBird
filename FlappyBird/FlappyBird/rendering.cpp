@@ -16,7 +16,7 @@
 #include <sstream>
 #include <fstream>
 
-Renderer::Renderer()
+Renderer::Renderer(unsigned int resx, unsigned int resy) : screenResX(resx), screenResY(resy)
 {
 
 }
@@ -27,11 +27,12 @@ Renderer::~Renderer()
     //glDeleteBuffers(1, &VBO);
 }
 
-void Renderer::loadImage(const char* data, unsigned int& texture, bool flip)
+void Renderer::loadImage(const char* data, unsigned int& texture, int& width, int& height, bool flip)
 {
-    int width, height, nrChannels;
+    int nrChannels;
     stbi_set_flip_vertically_on_load(flip);
     unsigned char* fileData = stbi_load(data, &width, &height, &nrChannels, 0);
+    std::cout << width << ", " << height << std::endl;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -39,7 +40,7 @@ void Renderer::loadImage(const char* data, unsigned int& texture, bool flip)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, fileData);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(fileData);
 }
 
@@ -47,17 +48,19 @@ void Renderer::loadImage(const char* data, unsigned int& texture, bool flip)
 void Renderer::initializeData()
 {
     // player images
-    loadImage("..\\Resources\\Sprites\\bluebird-downflap.png", playerTexture1, true);
-    loadImage("..\\Resources\\Sprites\\bluebird-midflap.png", playerTexture2, true);
-    loadImage("..\\Resources\\Sprites\\bluebird-upflap.png", playerTexture3, true);
+    int width, height;
+    loadImage("..\\Resources\\Sprites\\bluebird-downflap.png", playerTexture1, width, height, true);
+    loadImage("..\\Resources\\Sprites\\bluebird-midflap.png", playerTexture2, width, height, true);
+    loadImage("..\\Resources\\Sprites\\bluebird-upflap.png", playerTexture3, width, height, true);
 
+    // these vertices are in "local space"
     float playerVertices[] = {
-        1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // top right
-        1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -1.0f,  1.0f, 0.0f,  0.0f, 1.0f,  // top left
-        1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, // bottom left
-        -1.0f,  1.0f, 0.0f,  0.0f, 1.0f  // top left
+        width * 0.5f, height * 0.5f, 0.0f,   1.0f, 1.0f, // top right
+        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f,  // top left
+        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+        width * -0.5f, height * -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
+        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f  // top left
     };
 
     // generate other player buffers
@@ -73,17 +76,53 @@ void Renderer::initializeData()
     playerProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
 
     // tube
-    loadImage("..\\Resources\\Sprites\\pipe-green.png", tubeTexture, true);
+    loadImage("..\\Resources\\Sprites\\pipe-green.png", tubeTexture, width, height, true);
+
+    // these vertices are in "local space"
+    float tubeVertices[] = {
+        width * 0.5f, height * 0.5f, 0.0f,   1.0f, 1.0f, // top right
+        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f,  // top left
+        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+        width * -0.5f, height * -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
+        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f  // top left
+    };
+
     glGenVertexArrays(1, &tubeVAO);
     glGenBuffers(1, &tubeVBO);
     glBindVertexArray(tubeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, tubeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(playerVertices), playerVertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tubeVertices), tubeVertices, GL_DYNAMIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     tubeProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
+
+    // background
+    loadImage("..\\Resources\\Sprites\\background-day.png", backgroundTexture, width, height, true);
+
+    float backgroundVertices[] = {
+        -1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+    };
+
+    unsigned int backgroundVAO, backgroundVBO;
+    glGenVertexArrays(1, &backgroundVAO);
+    glGenBuffers(1, &backgroundVBO);
+    glBindVertexArray(backgroundVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, backgroundVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(backgroundVertices), backgroundVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    backgroundProgram = shaderStuff("..\\Shaders\\texture.vert", "..\\Shaders\\texture.frag");
 }
 
 void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& deltaTime)
@@ -106,9 +145,9 @@ void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& d
 
     glUseProgram(playerProgram);
     glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(player.positionX, player.positionY, 0.0));
+    trans = glm::translate(trans, glm::vec3(player.positionX / screenResX - 1.0f, player.positionY / screenResY - 1.0f, 0.0f));
     trans = glm::rotate(trans, glm::radians(player.rotation), glm::vec3(0.0, 0.0, 1.0));
-    trans = glm::scale(trans, glm::vec3(player.scaleX, player.scaleY, 1.0));
+    trans = glm::scale(trans, glm::vec3(player.scaleX / screenResX, player.scaleY / screenResY, 1.0));
     unsigned int transformLoc = glGetUniformLocation(playerProgram, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     
@@ -131,6 +170,17 @@ void Renderer::drawTube(GameObject& tube)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tubeTexture);
     glBindVertexArray(tubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawBackground()
+{
+    glUseProgram(backgroundProgram);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+    unsigned int sampler = glGetUniformLocation(playerProgram, "texture1");
+    glUniform1i(sampler, 0);
+    glBindVertexArray(backgroundVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 

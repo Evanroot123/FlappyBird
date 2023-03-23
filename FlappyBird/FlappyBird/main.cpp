@@ -18,10 +18,10 @@
 #include "game.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, Game& game);
 
-const unsigned int SCR_WIDTH = 400;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCREEN_WIDTH = 400;
+const unsigned int SCREEN_HEIGHT = 600;
 
 int main()
 {
@@ -30,7 +30,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "GuiTesting", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "GuiTesting", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -57,9 +57,10 @@ int main()
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
-    Game game;
-
-    Renderer renderer;
+    // basing the world coordinates off the actual pixels of the screen, this is super convenient for testing,
+    // but could have unintended side effects later
+    Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
+    Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
     //renderer.genShit();
     renderer.initializeData();
 
@@ -84,12 +85,13 @@ int main()
             frames = 0;
         }
 
-        processInput(window);
+        processInput(window, game);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         //renderer.drawShit();
+        renderer.drawBackground();
         renderer.drawGameObjects(game.gameObjects, duration);
 
         glfwSwapBuffers(window);
@@ -104,14 +106,30 @@ int main()
     return 0;
 }
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, Game& game)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
     {
+
     }
-    
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        game.playerMove(0, 1);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        game.playerMove(-1, 0);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        game.playerMove(0, -1);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        game.playerMove(1, 0);
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
