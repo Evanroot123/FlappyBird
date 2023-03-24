@@ -61,7 +61,6 @@ int main()
     // but could have unintended side effects later
     Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
-    //renderer.genShit();
     renderer.initializeData();
 
     int frames = 0;
@@ -87,11 +86,12 @@ int main()
 
         processInput(window, game);
 
+        game.update(duration);
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //renderer.drawShit();
-        renderer.drawBackground();
+        //renderer.drawBackground();
         renderer.drawGameObjects(game.gameObjects, duration);
 
         glfwSwapBuffers(window);
@@ -108,6 +108,8 @@ int main()
 
 void processInput(GLFWwindow* window, Game& game)
 {
+    static bool mousePressed = false;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -130,6 +132,22 @@ void processInput(GLFWwindow* window, Game& game)
     {
         game.playerMove(1, 0);
     }
+    if (mousePressed)
+    {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+        {
+            mousePressed = false;
+        }
+    }
+    else
+    {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            game.playerJump();
+            mousePressed = true;
+        }
+    }
+    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

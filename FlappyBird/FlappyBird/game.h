@@ -10,6 +10,8 @@ public:
 	std::vector<GameObject> gameObjects;
 	float playerVelocity;
 	float playerAcceleration;
+	int playerDirX;
+	int playerDirY;
 	unsigned int worldSpaceX;
 	unsigned int worldSpaceY;
 	float speed;

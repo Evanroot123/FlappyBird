@@ -54,12 +54,12 @@ void Renderer::initializeData()
 
     // these vertices are in "local space"
     float playerVertices[] = {
-        width * 0.5f, height * 0.5f, 0.0f,   1.0f, 1.0f, // top right
-        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f,  // top left
-        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-        width * -0.5f, height * -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
-        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f  // top left
+        width, height, 0.0f,    1.0f, 1.0f, // top right
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, height, 0.0f,    0.0f, 1.0f,  // top left
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, -height, 0.0f,    0.0f, 0.0f, // bottom left
+        -width, height, 0.0f,    0.0f, 1.0f  // top left
     };
 
     // generate other player buffers
@@ -80,12 +80,12 @@ void Renderer::initializeData()
 
     // these vertices are in "local space"
     float tubeVertices[] = {
-        width * 0.5f, height * 0.5f, 0.0f,   1.0f, 1.0f, // top right
-        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f,  // top left
-        width * 0.5f, height * -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-        width * -0.5f, height * -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
-        width * -0.5f,  height * 0.5f, 0.0f,  0.0f, 1.0f  // top left
+        width, height, 0.0f,    1.0f, 1.0f, // top right
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, height, 0.0f,    0.0f, 1.0f,  // top left
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, -height, 0.0f,    0.0f, 0.0f, // bottom left
+        -width, height, 0.0f,    0.0f, 1.0f  // top left
     };
 
     glGenVertexArrays(1, &tubeVAO);
@@ -144,7 +144,7 @@ void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& d
 
     glUseProgram(playerProgram);
     glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(player.positionX / screenResX - 1.0f, player.positionY / screenResY - 1.0f, 0.0f));
+    trans = glm::translate(trans, glm::vec3(player.positionX / screenResX * 2.0f - 1.0f, player.positionY / screenResY * 2.0f - 1.0f, 0.0f));
     trans = glm::rotate(trans, glm::radians(player.rotation), glm::vec3(0.0, 0.0, 1.0));
     trans = glm::scale(trans, glm::vec3(player.scaleX / screenResX, player.scaleY / screenResY, 1.0));
     unsigned int transformLoc = glGetUniformLocation(playerProgram, "transform");
