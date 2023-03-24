@@ -7,7 +7,11 @@ Game::Game(unsigned int worx, unsigned int wory) : worldSpaceX(worx), worldSpace
 	gameObjects.push_back(GameObject{ 100.0, 300.0, 1.3, 1.3, 0, GameObjectType::player });
 
 	// tubes
-	//gameObjects.push_back(GameObject{ 0.5, 0.5, 0.2, 0.8, 180, GameObjectType::tube });
+	//gameObjects.push_back(GameObject{ 200.0, 200.0, 1.0, 1.0, 0, GameObjectType::tube });
+	//gameObjects.push_back(GameObject{ 200.0, 500.0, 1.0, 1.0, 180, GameObjectType::tube });
+
+	// ground
+	gameObjects.push_back(GameObject{ 200.0, 55.0, 1.19, 1.0, 0, GameObjectType::ground });
 }
 
 void Game::update(std::chrono::microseconds deltaTime)
@@ -18,8 +22,8 @@ void Game::update(std::chrono::microseconds deltaTime)
 	//gameObjects[0].positionX += playerDirX * speed * delta;
 	//gameObjects[0].positionY += playerDirY * speed * delta;
 
-	playerVelocity += playerAcceleration * delta;
-	gameObjects[0].positionY += playerVelocity;
+	//playerVelocity += playerAcceleration * delta;
+	//gameObjects[0].positionY += playerVelocity;
 
 	playerDirX = 0;
 	playerDirY = 0;

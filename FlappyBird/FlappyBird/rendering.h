@@ -21,6 +21,7 @@ public:
 	void initializeData();
 	void drawPlayer(GameObject& player, const std::chrono::microseconds& deltaTime);
 	void drawTube(GameObject& tube);
+	void drawGround(GameObject& ground, const std::chrono::microseconds& deltaTime);
 	void drawBackground();
 	void drawGameObjects(std::vector<GameObject>& objects, const std::chrono::microseconds& deltaTime);
 private:
@@ -33,4 +34,5 @@ private:
 	unsigned int groundVAO, groundVBO, groundTexture, groundProgram;
 	unsigned int tubeVAO, tubeVBO, tubeTexture, tubeProgram;
 	unsigned int backgroundVAO, backgroundVBO, backgroundTexture, backgroundProgram;
+	std::chrono::microseconds groundTimePeriod = std::chrono::microseconds(3000000);
 };

@@ -172,6 +172,7 @@
     <ClInclude Include="ui.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Shaders\parallax.vert" />
     <None Include="..\Shaders\shader.fs" />
     <None Include="..\Shaders\shader4.vs" />
     <None Include="..\Shaders\shader5.vs" />

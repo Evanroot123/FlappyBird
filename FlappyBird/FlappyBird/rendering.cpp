@@ -31,7 +31,7 @@ void Renderer::loadImage(const char* data, unsigned int& texture, int& width, in
 {
     int nrChannels;
     stbi_set_flip_vertically_on_load(flip);
-    unsigned char* fileData = stbi_load(data, &width, &height, &nrChannels, 0);
+    unsigned char* fileData = stbi_load(data, &width, &height, &nrChannels, 4);
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -99,6 +99,27 @@ void Renderer::initializeData()
     glEnableVertexAttribArray(1);
     tubeProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
 
+    // ground
+    loadImage("..\\Resources\\Sprites\\base.png", groundTexture, width, height, true);
+    float groundVertices[] = {
+        width, height, 0.0f,    1.0f, 1.0f, // top right
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, height, 0.0f,    0.0f, 1.0f,  // top left
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, -height, 0.0f,    0.0f, 0.0f, // bottom left
+        -width, height, 0.0f,    0.0f, 1.0f  // top left
+    };
+    glGenVertexArrays(1, &groundVAO);
+    glGenBuffers(1, &groundVBO);
+    glBindVertexArray(groundVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, groundVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(groundVertices), groundVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    groundProgram = shaderStuff("..\\Shaders\\parallax.vert", "..\\Shaders\\texture.frag");
+
     // background
     loadImage("..\\Resources\\Sprites\\background-day.png", backgroundTexture, width, height, true);
 
@@ -160,15 +181,37 @@ void Renderer::drawTube(GameObject& tube)
 {
     glUseProgram(tubeProgram);
     glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(tube.positionX, tube.positionY, 0.0));
+    trans = glm::translate(trans, glm::vec3(tube.positionX / screenResX * 2.0f - 1.0f, tube.positionY / screenResY * 2.0f - 1.0f, 0.0));
     trans = glm::rotate(trans, glm::radians(tube.rotation), glm::vec3(0.0, 0.0, 1.0));
-    trans = glm::scale(trans, glm::vec3(tube.scaleX, tube.scaleY, 1.0));
+    trans = glm::scale(trans, glm::vec3(tube.scaleX / screenResX, tube.scaleY / screenResY, 1.0));
     unsigned int transformLoc = glGetUniformLocation(tubeProgram, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tubeTexture);
     glBindVertexArray(tubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawGround(GameObject& ground, const std::chrono::microseconds& deltaTime)
+{
+    static float delta = 0.0f;
+    glUseProgram(groundProgram);
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(ground.positionX / screenResX * 2.0f - 1.0f, ground.positionY / screenResY * 2.0f - 1.0f, 0.0));
+    trans = glm::rotate(trans, glm::radians(ground.rotation), glm::vec3(0.0, 0.0, 1.0));
+    trans = glm::scale(trans, glm::vec3(ground.scaleX / screenResX, ground.scaleY / screenResY, 1.0));
+    unsigned int transformLoc = glGetUniformLocation(groundProgram, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+    unsigned int timeLoc = glGetUniformLocation(groundProgram, "time");
+    delta += (float)deltaTime.count() / groundTimePeriod.count();
+    if (delta >= 1.0f)
+        delta = 0.0f;
+    glUniform1f(timeLoc, delta);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, groundTexture);
+    glBindVertexArray(groundVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
@@ -189,6 +232,8 @@ void Renderer::drawGameObjects(std::vector<GameObject>& objects, const std::chro
             drawPlayer(object, deltaTime);
         else if (object.id == GameObjectType::tube)
             drawTube(object);
+        else if (object.id == GameObjectType::ground)
+            drawGround(object, deltaTime);
     }
 }
 
