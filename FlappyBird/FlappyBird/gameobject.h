@@ -10,5 +10,8 @@ public:
 	float rotation;
 	GameObjectType id;
 
-	GameObject(float posx, float posy, float scax, float scay, float rot, GameObjectType _id);
+	int textureSizeX;
+	int textureSizeY;
+
+	GameObject(float posx, float posy, float scax, float scay, float rot, GameObjectType _id, int textx, int texty);
 };

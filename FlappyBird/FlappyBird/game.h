@@ -3,6 +3,7 @@
 #include <vector>
 #include <chrono>
 #include "gameobject.h"
+#include "rendering.h"
 
 class Game {
 
@@ -16,8 +17,20 @@ public:
 	unsigned int worldSpaceY;
 	float speed;
 
-	Game(unsigned int worx, unsigned int wory);
+	// tube stuff
+	int horizontalDistanceBetweenTubes;
+	int verticalDistanceBetweenTubes = 150;
+	int tubeSpawnPoint;
+	int tubeDespawnPoint;
+	int tubeMinYExtent = 40;
+	int tubeMaxYExtent = 40;
+
+	Renderer& renderer;
+
+	Game(unsigned int worx, unsigned int wory, Renderer& render);
+	void start();
 	void update(std::chrono::microseconds deltaTime);
+	void spawnTubes();
 	void playerJump();
 	void playerMove(int x, int y);
 };

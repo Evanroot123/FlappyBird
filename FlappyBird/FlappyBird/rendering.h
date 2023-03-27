@@ -8,6 +8,7 @@ class Renderer {
 public:
 	unsigned int screenResX;
 	unsigned int screenResY;
+	int playerWidth, playerHeight, tubeWidth, tubeHeight, groundWidth, groundHeight;
 
 	Renderer(unsigned int resx, unsigned int resy);
 	~Renderer();

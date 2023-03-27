@@ -59,9 +59,10 @@ int main()
 
     // basing the world coordinates off the actual pixels of the screen, this is super convenient for testing,
     // but could have unintended side effects later
-    Game game(SCREEN_WIDTH, SCREEN_HEIGHT);
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
     renderer.initializeData();
+    Game game(SCREEN_WIDTH, SCREEN_HEIGHT, renderer);
+    game.start();
 
     int frames = 0;
     auto start = std::chrono::steady_clock::now();

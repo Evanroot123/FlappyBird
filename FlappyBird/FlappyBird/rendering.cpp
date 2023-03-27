@@ -51,6 +51,8 @@ void Renderer::initializeData()
     loadImage("..\\Resources\\Sprites\\bluebird-downflap.png", playerTexture1, width, height, true);
     loadImage("..\\Resources\\Sprites\\bluebird-midflap.png", playerTexture2, width, height, true);
     loadImage("..\\Resources\\Sprites\\bluebird-upflap.png", playerTexture3, width, height, true);
+    playerWidth = width;
+    playerHeight = height;
 
     // these vertices are in "local space"
     float playerVertices[] = {
@@ -77,6 +79,8 @@ void Renderer::initializeData()
 
     // tube
     loadImage("..\\Resources\\Sprites\\pipe-green.png", tubeTexture, width, height, true);
+    tubeWidth = width;
+    tubeHeight = height;
 
     // these vertices are in "local space"
     float tubeVertices[] = {
@@ -101,6 +105,9 @@ void Renderer::initializeData()
 
     // ground
     loadImage("..\\Resources\\Sprites\\base.png", groundTexture, width, height, true);
+    groundWidth = width;
+    groundHeight = height;
+
     float groundVertices[] = {
         width, height, 0.0f,    1.0f, 1.0f, // top right
         width, -height, 0.0f,    1.0f, 0.0f, // bottom right
@@ -226,15 +233,30 @@ void Renderer::drawBackground()
 
 void Renderer::drawGameObjects(std::vector<GameObject>& objects, const std::chrono::microseconds& deltaTime)
 {
+    GameObject* player = nullptr;
+    GameObject* ground = nullptr;
+
     for (auto& object : objects)
     {
         if (object.id == GameObjectType::player)
-            drawPlayer(object, deltaTime);
+        {
+            player = &object;
+        }
         else if (object.id == GameObjectType::tube)
+        {
             drawTube(object);
+        }
         else if (object.id == GameObjectType::ground)
-            drawGround(object, deltaTime);
+        {
+            ground = &object;
+        }
     }
+
+    // want to draw these objects last
+    if (ground)
+        drawGround(*ground, deltaTime);
+    if (player)
+        drawPlayer(*player, deltaTime);
 }
 
 void Renderer::drawTexture(const char* file)
