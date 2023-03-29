@@ -48,21 +48,26 @@ void Game::update(std::chrono::microseconds deltaTime)
 	float delta = deltaTime.count() / 1000000.0f;
 
 	// for manual movement
-	//gameObjects[0].positionX += playerDirX * speed * delta;
-	//gameObjects[0].positionY += playerDirY * speed * delta;
-	//
+	gameObjects[0].positionX += playerDirX * speed * delta;
+	gameObjects[0].positionY += playerDirY * speed * delta;
+	
 	//playerVelocity += playerAcceleration * delta;
 	//gameObjects[0].positionY += playerVelocity;
 
 	playerDirX = 0;
 	playerDirY = 0;
 
+	if (isPlayerTouchingGround())
+		std::cout << "ground" << std::endl;
+
 	// update tubes position
 	for (auto& object : gameObjects)
 	{
 		if (object.id == GameObjectType::tube)
 		{
-			object.positionX -= tubeSpeed * delta;
+			//object.positionX -= tubeSpeed * delta;
+			if (isPlayerOverlapping(object))
+				std::cout << "tube" << std::endl;
 		}
 	}
 }
@@ -82,4 +87,54 @@ void Game::playerMove(int x, int y)
 	// adding to account for multiple keys being pressed per step, for wasd
 	playerDirX += x;
 	playerDirY += y;
+}
+
+bool Game::isPlayerTouchingGround()
+{
+	// player Y position below certain value (hitting the floor)
+	float ground = gameObjects[1].textureSizeY * gameObjects[1].scaleY;
+	float halfPlayerSize = gameObjects[0].textureSizeY * gameObjects[0].scaleY / 2.0f;
+	float playerBottomEdge = gameObjects[0].positionY - halfPlayerSize;
+
+	if (playerBottomEdge <= ground)
+		return true;
+
+	return false;
+}
+
+// collision detection for tubes and floor
+bool Game::isPlayerOverlapping(GameObject& object)
+{
+	if (object.id == GameObjectType::tube)
+	{
+		float halfPlayerSizeX = gameObjects[0].textureSizeX * gameObjects[0].scaleX / 2.0f;
+		float halfTubeSizeX = object.textureSizeX * object.scaleX / 2.0f;
+		float posDiffX = abs(gameObjects[0].positionX - object.positionX);
+
+		if (posDiffX <= halfPlayerSizeX + halfTubeSizeX)
+		{
+			// special case 1 - player Y position above certain value and player x position overlapping with tube (too high)
+			float halfPlayerSizeY = gameObjects[0].textureSizeY * gameObjects[0].scaleY / 2.0f;
+			float playerTopEdge = gameObjects[0].positionY + halfPlayerSizeY;
+			float maxHeight = worldSpaceY - tubeMaxYExtent;
+
+			if (playerTopEdge >= maxHeight)
+				return true;
+		}
+		else
+		{
+			return false;
+		}
+
+		float halfPlayerSizeY = gameObjects[0].textureSizeY * gameObjects[0].scaleY / 2.0f;
+		float halfTubeSizeY = object.textureSizeY * object.scaleY / 2.0f;
+		float posDiffY = abs(gameObjects[0].positionY - object.positionY);
+
+		if (posDiffY <= halfPlayerSizeY + halfTubeSizeY)
+			return true;
+
+		return false;
+	}
+
+	return false;
 }

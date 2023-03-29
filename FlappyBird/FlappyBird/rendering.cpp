@@ -188,9 +188,11 @@ void Renderer::drawTube(GameObject& tube)
 {
     glUseProgram(tubeProgram);
     glm::mat4 trans = glm::mat4(1.0f);
+    
     trans = glm::translate(trans, glm::vec3(tube.positionX / screenResX * 2.0f - 1.0f, tube.positionY / screenResY * 2.0f - 1.0f, 0.0));
-    trans = glm::rotate(trans, glm::radians(tube.rotation), glm::vec3(0.0, 0.0, 1.0));
     trans = glm::scale(trans, glm::vec3(tube.scaleX / screenResX, tube.scaleY / screenResY, 1.0));
+    trans = glm::rotate(trans, glm::radians(tube.rotation), glm::vec3(0.0, 0.0, 1.0));
+    
     unsigned int transformLoc = glGetUniformLocation(tubeProgram, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 

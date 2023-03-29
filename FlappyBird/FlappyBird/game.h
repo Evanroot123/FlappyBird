@@ -34,4 +34,6 @@ public:
 	void spawnTubes();
 	void playerJump();
 	void playerMove(int x, int y);
+	bool isPlayerTouchingGround();
+	bool isPlayerOverlapping(GameObject& object);
 };
