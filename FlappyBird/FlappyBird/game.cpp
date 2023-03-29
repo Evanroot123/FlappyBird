@@ -20,27 +20,11 @@ Game::Game(unsigned int worx, unsigned int wory, Renderer& render) :
 void Game::start()
 {
 	float ground = gameObjects[1].textureSizeY * gameObjects[1].scaleY;
+	float startingXPosition = worldSpaceX + renderer.tubeWidth / 2.0f;
 
-	GameObject tube1{ 300.0, 0.0, 1.0, 1.0, 0, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight };
-	GameObject tube2{ 300.0, 0.0, 1.0, 1.0, 180, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight };
+	spawnTubes();
 
-	tube1.positionY = ground + tubeMinYExtent - (tube1.textureSizeY * tube1.scaleY / 2);
-	tube2.positionY = worldSpaceY + (tube2.textureSizeY * tube2.scaleY / 2) - tubeMaxYExtent;
-
-	// calculate a random number, and then offset each tube half verticalDistanceBetweenTubes from that point
-	int range = worldSpaceY - tubeMaxYExtent - ground - tubeMinYExtent - verticalDistanceBetweenTubes;
-
-	std::random_device rd;
-	std::mt19937 mt(rd());
-	std::uniform_int_distribution<int> dist(0, range);
-	int random = dist(mt);
-
-	tube1.positionY += random;
-	tube2.positionY -= range - random;
-
-	// spawn tubes
-	gameObjects.push_back(tube1);
-	gameObjects.push_back(tube2);
+	scorePosition = startingXPosition;
 }
 
 void Game::update(std::chrono::microseconds deltaTime)
@@ -65,14 +49,64 @@ void Game::update(std::chrono::microseconds deltaTime)
 	{
 		if (object.id == GameObjectType::tube)
 		{
-			//object.positionX -= tubeSpeed * delta;
+			object.positionX -= tubeSpeed * delta;
 			if (isPlayerOverlapping(object))
 				std::cout << "tube" << std::endl;
 		}
 	}
+
+	// need to check if last tube x pos is greater than horizontal tube distance away from edge of screen
+	GameObject& tube = gameObjects.back();
+	float tubeRightEdge = tube.positionX + tube.textureSizeX * tube.scaleX / 2.0f;
+	if (worldSpaceX - tubeRightEdge >= horizontalDistanceBetweenTubes)
+		spawnTubes();
+
+	// check if tubes need to be despawned
+	// first two objects are player and ground
+	for (auto i = gameObjects.end() - 1; i > gameObjects.begin() + 1; i--)
+	{
+		if (i->id == GameObjectType::tube)
+		{
+			float tubeRightEdge = i->positionX + i->textureSizeX * i->scaleX / 2.0f;
+			if (tubeRightEdge < 0)
+			{
+				i = gameObjects.erase(i);
+			}
+		}
+	}
+
+	scorePosition -= tubeSpeed * delta;
+	if (scorePosition - gameObjects[0].positionX <= 0)
+		std::cout << "SCORED" << std::endl;
 }
 
 void Game::spawnTubes()
+{
+	float startingXPosition = worldSpaceX + renderer.tubeWidth / 2.0f;
+
+	GameObject tube1{ startingXPosition, 0, 1.0, 1.0, 0, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight };
+	GameObject tube2{ startingXPosition, 0, 1.0, 1.0, 180, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight };
+
+	tube1.positionY = ground + tubeMinYExtent - (tube1.textureSizeY * tube1.scaleY / 2);
+	tube2.positionY = worldSpaceY + (tube2.textureSizeY * tube2.scaleY / 2) - tubeMaxYExtent;
+
+	// calculate a random number, and then offset each tube half verticalDistanceBetweenTubes from that point
+	int range = worldSpaceY - tubeMaxYExtent - ground - tubeMinYExtent - verticalDistanceBetweenTubes;
+
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_int_distribution<int> dist(0, range);
+	int random = dist(mt);
+
+	tube1.positionY += random;
+	tube2.positionY -= range - random;
+
+	// spawn tubes
+	gameObjects.push_back(tube1);
+	gameObjects.push_back(tube2);
+}
+
+void Game::despawnTubes()
 {
 
 }
