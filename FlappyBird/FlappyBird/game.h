@@ -24,6 +24,7 @@ public:
 	int tubeDespawnPoint;
 	int tubeMinYExtent = 40;
 	int tubeMaxYExtent = 40;
+	float tubeSpeed = 100.0f;
 
 	Renderer& renderer;
 

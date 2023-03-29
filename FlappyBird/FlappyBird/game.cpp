@@ -58,7 +58,13 @@ void Game::update(std::chrono::microseconds deltaTime)
 	playerDirY = 0;
 
 	// update tubes position
-
+	for (auto& object : gameObjects)
+	{
+		if (object.id == GameObjectType::tube)
+		{
+			object.positionX -= tubeSpeed * delta;
+		}
+	}
 }
 
 void Game::spawnTubes()
