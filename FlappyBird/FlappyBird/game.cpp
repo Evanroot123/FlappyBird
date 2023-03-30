@@ -4,7 +4,7 @@
 #include <random>
 
 Game::Game(unsigned int worx, unsigned int wory, Renderer& render) : 
-	worldSpaceX(worx), worldSpaceY(wory), renderer(render), speed(500.0f), playerVelocity(0.0f), playerAcceleration(-13.0)
+	worldSpaceX(worx), worldSpaceY(wory), renderer(render), speed(500.0f), playerVelocity(0.0f), playerAcceleration(-10.0)
 {
 	// first object is player
 	gameObjects.push_back(GameObject{ 100.0, 300.0, 1.3, 1.3, 0, GameObjectType::player, renderer.playerWidth, renderer.playerHeight });
@@ -29,20 +29,29 @@ void Game::start()
 
 void Game::update(std::chrono::microseconds deltaTime)
 {
+	if (gameEnd)
+	{
+		return;
+	}
+
 	float delta = deltaTime.count() / 1000000.0f;
 
 	// for manual movement
 	gameObjects[0].positionX += playerDirX * speed * delta;
 	gameObjects[0].positionY += playerDirY * speed * delta;
 	
-	//playerVelocity += playerAcceleration * delta;
-	//gameObjects[0].positionY += playerVelocity;
+	// gravity + jumping
+	playerVelocity += playerAcceleration * delta;
+	gameObjects[0].positionY += playerVelocity;
 
 	playerDirX = 0;
 	playerDirY = 0;
 
 	if (isPlayerTouchingGround())
-		std::cout << "ground" << std::endl;
+	{
+		std::cout << " hit the ground" << std::endl;
+		gameOver();
+	}
 
 	// update tubes position
 	for (auto& object : gameObjects)
@@ -51,7 +60,10 @@ void Game::update(std::chrono::microseconds deltaTime)
 		{
 			object.positionX -= tubeSpeed * delta;
 			if (isPlayerOverlapping(object))
+			{
 				std::cout << "tube" << std::endl;
+				gameOver();
+			}
 		}
 	}
 
@@ -77,12 +89,18 @@ void Game::update(std::chrono::microseconds deltaTime)
 
 	scorePosition -= tubeSpeed * delta;
 	if (scorePosition - gameObjects[0].positionX <= 0)
-		std::cout << "SCORED" << std::endl;
+	{
+		playerScore++;
+		GameObject& tube = gameObjects[2];
+		scorePosition += tube.textureSizeX * tube.scaleX + horizontalDistanceBetweenTubes;
+		std::cout << "score: " << playerScore << std::endl;
+	}
 }
 
 void Game::spawnTubes()
 {
 	float startingXPosition = worldSpaceX + renderer.tubeWidth / 2.0f;
+	float ground = gameObjects[1].textureSizeY * gameObjects[1].scaleY;
 
 	GameObject tube1{ startingXPosition, 0, 1.0, 1.0, 0, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight };
 	GameObject tube2{ startingXPosition, 0, 1.0, 1.0, 180, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight };
@@ -111,9 +129,17 @@ void Game::despawnTubes()
 
 }
 
+void Game::gameOver()
+{
+	std::cout << "GAME OVER" << std::endl;
+	gameEnd = true;
+	// stop updating the scene
+	// show game over + final score
+}
+
 void Game::playerJump()
 {
-	playerVelocity = 4.1f;
+	playerVelocity = 3.0f;
 }
 
 void Game::playerMove(int x, int y)
@@ -165,7 +191,9 @@ bool Game::isPlayerOverlapping(GameObject& object)
 		float posDiffY = abs(gameObjects[0].positionY - object.positionY);
 
 		if (posDiffY <= halfPlayerSizeY + halfTubeSizeY)
+		{
 			return true;
+		}
 
 		return false;
 	}

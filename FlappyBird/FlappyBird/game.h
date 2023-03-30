@@ -18,15 +18,18 @@ public:
 	float speed;
 
 	// tube stuff
-	int horizontalDistanceBetweenTubes = 180;
-	int verticalDistanceBetweenTubes = 150;
+	int horizontalDistanceBetweenTubes = 160;
+	int verticalDistanceBetweenTubes = 130;
 	int tubeSpawnPoint;
 	int tubeDespawnPoint;
 	int tubeMinYExtent = 40;
 	int tubeMaxYExtent = 40;
-	float tubeSpeed = 100.0f;
+	float tubeSpeed = 160.0f;
 
 	float scorePosition;
+	int playerScore = 0;
+
+	bool gameEnd = false;
 
 	Renderer& renderer;
 
@@ -35,6 +38,7 @@ public:
 	void update(std::chrono::microseconds deltaTime);
 	void spawnTubes();
 	void despawnTubes();
+	void gameOver();
 	void playerJump();
 	void playerMove(int x, int y);
 	bool isPlayerTouchingGround();

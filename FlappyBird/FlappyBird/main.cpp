@@ -19,6 +19,7 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, Game& game);
+void drawScore(Renderer& renderer, int score);
 
 const unsigned int SCREEN_WIDTH = 400;
 const unsigned int SCREEN_HEIGHT = 600;
@@ -93,7 +94,19 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         renderer.drawBackground();
-        renderer.drawGameObjects(game.gameObjects, duration);
+
+        // want the parallax scrolling on the ground to stop when the game ends
+        if (game.gameEnd)
+        {
+            renderer.drawGameObjects(game.gameObjects, std::chrono::microseconds(0));
+        }
+        else
+        {
+            renderer.drawGameObjects(game.gameObjects, duration);
+        }
+
+        drawScore(renderer, game.playerScore);
+        //renderer.drawScore(SCREEN_WIDTH / 2.0f, 550.0f, 1.0f, 1.0f, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -148,7 +161,6 @@ void processInput(GLFWwindow* window, Game& game)
             mousePressed = true;
         }
     }
-    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -156,4 +168,33 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+void drawScore(Renderer& renderer, int score)
+{
+    int digits[10] = { 0 };
+    int length = 0;
+    int result = score;
+
+    if (score == 0)
+    {
+        renderer.drawScore(SCREEN_WIDTH / 2.0f, 550.0f, 1.0f, 1.0f, 0);
+        return;
+    }
+
+    while (result > 0)
+    {
+        digits[length] = result % 10;
+        result /= 10;
+        length++;
+    }
+
+    int startPos = (SCREEN_WIDTH / 2.0f) - (renderer.numberWidth * length / 2.0f);
+
+    while (length > 0)
+    {
+        renderer.drawScore(startPos, 550.0f, 1.0f, 1.0f, digits[length - 1]);
+        startPos += renderer.numberWidth;
+        length--;
+    }
 }

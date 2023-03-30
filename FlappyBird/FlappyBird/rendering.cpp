@@ -150,6 +150,41 @@ void Renderer::initializeData()
     glEnableVertexAttribArray(1);
 
     backgroundProgram = shaderStuff("..\\Shaders\\texture.vert", "..\\Shaders\\texture.frag");
+
+    // numbers
+    loadImage("..\\Resources\\Sprites\\0.png", numberTexture0, width, height, true);
+    loadImage("..\\Resources\\Sprites\\1.png", numberTexture1, width, height, true);
+    loadImage("..\\Resources\\Sprites\\2.png", numberTexture2, width, height, true);
+    loadImage("..\\Resources\\Sprites\\3.png", numberTexture3, width, height, true);
+    loadImage("..\\Resources\\Sprites\\4.png", numberTexture4, width, height, true);
+    loadImage("..\\Resources\\Sprites\\5.png", numberTexture5, width, height, true);
+    loadImage("..\\Resources\\Sprites\\6.png", numberTexture6, width, height, true);
+    loadImage("..\\Resources\\Sprites\\7.png", numberTexture7, width, height, true);
+    loadImage("..\\Resources\\Sprites\\8.png", numberTexture8, width, height, true);
+    loadImage("..\\Resources\\Sprites\\9.png", numberTexture9, width, height, true);
+    numberWidth = width;
+    numberHeight = height;
+
+    float numberVertices[] = {
+        width, height, 0.0f,    1.0f, 1.0f, // top right
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, height, 0.0f,    0.0f, 1.0f,  // top left
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, -height, 0.0f,    0.0f, 0.0f, // bottom left
+        -width, height, 0.0f,    0.0f, 1.0f  // top left
+    };
+
+    glGenVertexArrays(1, &numberVAO);
+    glGenBuffers(1, &numberVBO);
+    glBindVertexArray(numberVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, numberVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(numberVertices), numberVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    numberProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
 }
 
 void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& deltaTime)
@@ -230,6 +265,62 @@ void Renderer::drawBackground()
     glBindVertexArray(backgroundVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawScore(float posx, float posy, float scalex, float scaley, int score)
+{
+    unsigned int texture;
+    switch (score)
+    {
+    case 0:
+        texture = numberTexture0;
+        break;
+    case 1:
+        texture = numberTexture1;
+        break;
+    case 2:
+        texture = numberTexture2;
+        break;
+    case 3:
+        texture = numberTexture3;
+        break;
+    case 4:
+        texture = numberTexture4;
+        break;
+    case 5:
+        texture = numberTexture5;
+        break;
+    case 6:
+        texture = numberTexture6;
+        break;
+    case 7:
+        texture = numberTexture7;
+        break;
+    case 8:
+        texture = numberTexture8;
+        break;
+    case 9:
+        texture = numberTexture9;
+        break;
+    default:
+        texture = numberTexture0;
+        break;
+    }
+
+    glUseProgram(numberProgram);
+    glm::mat4 trans = glm::mat4(1.0f);
+
+    trans = glm::translate(trans, glm::vec3(posx / screenResX * 2.0f - 1.0f, posy / screenResY * 2.0f - 1.0f, 0.0));
+    trans = glm::scale(trans, glm::vec3(scalex / screenResX, scaley / screenResY, 1.0));
+    trans = glm::rotate(trans, glm::radians(0.0f), glm::vec3(0.0, 0.0, 1.0));
+
+    unsigned int transformLoc = glGetUniformLocation(numberProgram, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(numberVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
