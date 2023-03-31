@@ -13,13 +13,14 @@
 #include <sstream>
 #include <string>
 #include <chrono>
+#include <fstream>
 
 #include "rendering.h"
 #include "game.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, Game& game);
-void drawScore(Renderer& renderer, int score);
+void drawScore(Renderer& renderer, int score, int posx, int posy);
 
 const unsigned int SCREEN_WIDTH = 400;
 const unsigned int SCREEN_HEIGHT = 600;
@@ -58,6 +59,17 @@ int main()
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
+    std::fstream scoreFile;
+    scoreFile.open("..\\score.txt");
+    std::string scoreLine;
+    std::getline(scoreFile, scoreLine);
+    int highScore = 0;
+    if (scoreLine.length() > 0)
+        highScore = std::stoi(scoreLine);
+    scoreFile.close();
+
+    std::cout << "Current high score: " << highScore << std::endl;
+
     // basing the world coordinates off the actual pixels of the screen, this is super convenient for testing,
     // but could have unintended side effects later
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -70,6 +82,9 @@ int main()
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::chrono::microseconds timeCollector = std::chrono::microseconds(0);
+
+    float endGameScoreDelta = 0.0f;
+    bool onGameEnd = true;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -98,15 +113,46 @@ int main()
         // want the parallax scrolling on the ground to stop when the game ends
         if (game.gameEnd)
         {
+            if (onGameEnd)
+            {
+                onGameEnd = false;
+                if (game.playerScore > highScore)
+                {
+                    highScore = game.playerScore;
+                    scoreFile.open("..\\score.txt");
+                    if (scoreFile.is_open())
+                    {
+                        scoreFile << game.playerScore;
+                        scoreFile.close();
+                    }
+                }
+            }
+
             renderer.drawGameObjects(game.gameObjects, std::chrono::microseconds(0));
+            renderer.drawUIElement(UIElementType::gameOverText, 200.0f, 450.0f, 1.0f, 1.0f);
+            renderer.drawUIElement(UIElementType::gameOverPanel, 200.0f, 450.0f - renderer.gameOverHeight / 2.0f - renderer.gameOverPanelHeight * 1.5f / 2.0f - 10.0f, 1.5f, 1.5f);
+            
+            if (game.playerScore == highScore)
+                renderer.drawUIElement(UIElementType::goldMedal, 103.0f, 319.0f, 1.5f, 1.5f);
+            else if (highScore - game.playerScore < 10)
+                renderer.drawUIElement(UIElementType::silverMedal, 103.0f, 319.0f, 1.5f, 1.5f);
+            else
+                renderer.drawUIElement(UIElementType::bronzeMedal, 103.0f, 319.0f, 1.5f, 1.5f);
+
+            // need to show score on menu, but gradually count up to the score over the course of ~ 1 second
+            if (endGameScoreDelta < 1.0f)
+                endGameScoreDelta += duration.count() / 1000000.0f;
+            else
+                endGameScoreDelta = 1.0f;
+
+            drawScore(renderer, game.playerScore * endGameScoreDelta, 315.0f, 350.0f);
+            drawScore(renderer, highScore, 315.0f, 280.0f);
         }
         else
         {
             renderer.drawGameObjects(game.gameObjects, duration);
+            drawScore(renderer, game.playerScore, SCREEN_WIDTH / 2.0f, 550.0f);
         }
-
-        drawScore(renderer, game.playerScore);
-        //renderer.drawScore(SCREEN_WIDTH / 2.0f, 550.0f, 1.0f, 1.0f, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -170,15 +216,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void drawScore(Renderer& renderer, int score)
+void drawScore(Renderer& renderer, int score, int posx, int posy)
 {
     int digits[10] = { 0 };
     int length = 0;
     int result = score;
+    int spaceBetweenDigits = 3;
 
     if (score == 0)
     {
-        renderer.drawScore(SCREEN_WIDTH / 2.0f, 550.0f, 1.0f, 1.0f, 0);
+        renderer.drawScore(posx - renderer.numberWidth / 2.0f, posy, 1.0f, 1.0f, 0);
         return;
     }
 
@@ -189,12 +236,12 @@ void drawScore(Renderer& renderer, int score)
         length++;
     }
 
-    int startPos = (SCREEN_WIDTH / 2.0f) - (renderer.numberWidth * length / 2.0f);
+    int startPos = (posx) - ((renderer.numberWidth * length + spaceBetweenDigits * (length - 1)) / 2.0f);
 
     while (length > 0)
     {
-        renderer.drawScore(startPos, 550.0f, 1.0f, 1.0f, digits[length - 1]);
-        startPos += renderer.numberWidth;
+        renderer.drawScore(startPos, posy, 1.0f, 1.0f, digits[length - 1]);
+        startPos += renderer.numberWidth + spaceBetweenDigits;
         length--;
     }
 }

@@ -41,8 +41,8 @@ void Game::update(std::chrono::microseconds deltaTime)
 	gameObjects[0].positionY += playerDirY * speed * delta;
 	
 	// gravity + jumping
-	playerVelocity += playerAcceleration * delta;
-	gameObjects[0].positionY += playerVelocity;
+	//playerVelocity += playerAcceleration * delta;
+	//gameObjects[0].positionY += playerVelocity;
 
 	playerDirX = 0;
 	playerDirY = 0;

@@ -185,6 +185,155 @@ void Renderer::initializeData()
     glEnableVertexAttribArray(1);
 
     numberProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
+
+    loadImage("..\\Resources\\Sprites\\gameover.png", gameOverTexture, width, height, true);
+    gameOverWidth = width;
+    gameOverHeight = height;
+
+    float gameOverVertices[] = {
+        width, height, 0.0f,    1.0f, 1.0f, // top right
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, height, 0.0f,    0.0f, 1.0f,  // top left
+        width, -height, 0.0f,    1.0f, 0.0f, // bottom right
+        -width, -height, 0.0f,    0.0f, 0.0f, // bottom left
+        -width, height, 0.0f,    0.0f, 1.0f  // top left
+    };
+
+    glGenVertexArrays(1, &gameOverVAO);
+    glGenBuffers(1, &gameOverVBO);
+    glBindVertexArray(gameOverVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, gameOverVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gameOverVertices), gameOverVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    gameOverProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
+
+    initializeAtlasData();
+}
+
+void Renderer::initializeAtlasData()
+{
+    int atlasWidth, atlasHeight;
+    loadImage("..\\Resources\\Sprites\\atlas.png", atlasTexture, atlasWidth, atlasHeight, false);
+
+    // game over menu
+    gameOverPanelWidth = 238;
+    gameOverPanelHeight = 126;
+
+    // 0.0 0.50390625 0.23242188 0.123046875
+    float gameOverTopLeftX = 0.0f;
+    float gameOverTopLeftY = 0.50390625f;
+    float gameOverSpanX = 0.23242188f;
+    float gameOverSpanY = 0.123046875f;
+
+    float gameOverPanelVertices[] = {
+        gameOverPanelWidth, gameOverPanelHeight, 0.0f,    gameOverTopLeftX + gameOverSpanX, gameOverTopLeftY, // top right
+        gameOverPanelWidth, -gameOverPanelHeight, 0.0f,    gameOverTopLeftX + gameOverSpanX, gameOverTopLeftY + gameOverSpanY, // bottom right
+        -gameOverPanelWidth, gameOverPanelHeight, 0.0f,    gameOverTopLeftX, gameOverTopLeftY,  // top left
+        gameOverPanelWidth, -gameOverPanelHeight, 0.0f,    gameOverTopLeftX + gameOverSpanX, gameOverTopLeftY + gameOverSpanY, // bottom right
+        -gameOverPanelWidth, -gameOverPanelHeight, 0.0f,    gameOverTopLeftX, gameOverTopLeftY + gameOverSpanY, // bottom left
+        -gameOverPanelWidth, gameOverPanelHeight, 0.0f,    gameOverTopLeftX, gameOverTopLeftY  // top left
+    };
+
+    //float gameOverPanelVertices[] = {
+    //    gameOverPanelWidth, gameOverPanelHeight, 0.0f,    1.0f, 0.0f, // top right
+    //    gameOverPanelWidth, -gameOverPanelHeight, 0.0f,    1.0f, 1.0f, // bottom right
+    //    -gameOverPanelWidth, gameOverPanelHeight, 0.0f,    0.0f, 0.0f,  // top left
+    //    gameOverPanelWidth, -gameOverPanelHeight, 0.0f,    1.0f, 1.0f, // bottom right
+    //    -gameOverPanelWidth, -gameOverPanelHeight, 0.0f,    0.0f, 1.0f, // bottom left
+    //    -gameOverPanelWidth, gameOverPanelHeight, 0.0f,    0.0f, 0.0f  // top left
+    //};
+
+    glGenVertexArrays(1, &gameOverPanelVAO);
+    glGenBuffers(1, &gameOverPanelVBO);
+    glBindVertexArray(gameOverPanelVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, gameOverPanelVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gameOverPanelVertices), gameOverPanelVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    gameOverPanelProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
+
+    medalWidth = 44;
+    medalHeight = 44;
+    // bronze medal
+    float bronzeMedalTopLeftX = 0.21875;
+    float bronzeMedalTopLeftY = 0.9316406;
+    float bronzeMedalSpanX = 0.04296875;
+    float bronzeMedalSpanY = 0.04296875;
+    float bronzeMedalVertices[] = {
+        medalWidth, medalHeight, 0.0f,    bronzeMedalTopLeftX + bronzeMedalSpanX, bronzeMedalTopLeftY, // top right
+        medalWidth, -medalHeight, 0.0f,    bronzeMedalTopLeftX + bronzeMedalSpanX, bronzeMedalTopLeftY + bronzeMedalSpanY, // bottom right
+        -medalWidth, medalHeight, 0.0f,    bronzeMedalTopLeftX, bronzeMedalTopLeftY,  // top left
+        medalWidth, -medalHeight, 0.0f,    bronzeMedalTopLeftX + bronzeMedalSpanX, bronzeMedalTopLeftY + bronzeMedalSpanY, // bottom right
+        -medalWidth, -medalHeight, 0.0f,    bronzeMedalTopLeftX, bronzeMedalTopLeftY + bronzeMedalSpanY, // bottom left
+        -medalWidth, medalHeight, 0.0f,    bronzeMedalTopLeftX, bronzeMedalTopLeftY  // top left
+    };
+
+    glGenVertexArrays(1, &bronzeMedalVAO);
+    glGenBuffers(1, &bronzeMedalVBO);
+    glBindVertexArray(bronzeMedalVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, bronzeMedalVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(bronzeMedalVertices), bronzeMedalVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    medalProgram = shaderStuff("..\\Shaders\\texture-transform.vert", "..\\Shaders\\texture.frag");
+    
+    // silver medal
+    float silverMedalTopLeftX = 0.23632812;
+    float silverMedalTopLeftY = 0.50390625;
+    float silverMedalSpanX = 0.04296875;
+    float silverMedalSpanY = 0.04296875;
+    float silverMedalVertices[] = {
+        medalWidth, medalHeight, 0.0f,    silverMedalTopLeftX + silverMedalSpanX, silverMedalTopLeftY, // top right
+        medalWidth, -medalHeight, 0.0f,    silverMedalTopLeftX + silverMedalSpanX, silverMedalTopLeftY + silverMedalSpanY, // bottom right
+        -medalWidth, medalHeight, 0.0f,    silverMedalTopLeftX, silverMedalTopLeftY,  // top left
+        medalWidth, -medalHeight, 0.0f,    silverMedalTopLeftX + silverMedalSpanX, silverMedalTopLeftY + silverMedalSpanY, // bottom right
+        -medalWidth, -medalHeight, 0.0f,    silverMedalTopLeftX, silverMedalTopLeftY + silverMedalSpanY, // bottom left
+        -medalWidth, medalHeight, 0.0f,    silverMedalTopLeftX, silverMedalTopLeftY  // top left
+    };
+
+    glGenVertexArrays(1, &silverMedalVAO);
+    glGenBuffers(1, &silverMedalVBO);
+    glBindVertexArray(silverMedalVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, silverMedalVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(silverMedalVertices), silverMedalVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // gold
+    float goldMedalTopLeftX = 0.23632812;
+    float goldMedalTopLeftY = 0.55078125;
+    float goldMedalSpanX = 0.04296875;
+    float goldMedalSpanY = 0.04296875;
+    float goldMedalVertices[] = {
+        medalWidth, medalHeight, 0.0f,    goldMedalTopLeftX + goldMedalSpanX, goldMedalTopLeftY, // top right
+        medalWidth, -medalHeight, 0.0f,    goldMedalTopLeftX + goldMedalSpanX, goldMedalTopLeftY + goldMedalSpanY, // bottom right
+        -medalWidth, medalHeight, 0.0f,    goldMedalTopLeftX, goldMedalTopLeftY,  // top left
+        medalWidth, -medalHeight, 0.0f,    goldMedalTopLeftX + goldMedalSpanX, goldMedalTopLeftY + goldMedalSpanY, // bottom right
+        -medalWidth, -medalHeight, 0.0f,    goldMedalTopLeftX, goldMedalTopLeftY + goldMedalSpanY, // bottom left
+        -medalWidth, medalHeight, 0.0f,    goldMedalTopLeftX, goldMedalTopLeftY  // top left
+    };
+
+    glGenVertexArrays(1, &goldMedalVAO);
+    glGenBuffers(1, &goldMedalVBO);
+    glBindVertexArray(goldMedalVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, goldMedalVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(goldMedalVertices), goldMedalVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& deltaTime)
@@ -321,6 +470,55 @@ void Renderer::drawScore(float posx, float posy, float scalex, float scaley, int
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(numberVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawUIElement(UIElementType type, float posx, float posy, float scalex, float scaley)
+{
+    unsigned int program, texture, vao;
+
+    switch (type)
+    {
+    case gameOverText:
+        program = gameOverProgram;
+        texture = gameOverTexture;
+        vao = gameOverVAO;
+        break;
+    case gameOverPanel:
+        program = gameOverPanelProgram;
+        texture = atlasTexture;
+        vao = gameOverPanelVAO;
+        break;
+    case bronzeMedal:
+        program = medalProgram;
+        texture = atlasTexture;
+        vao = bronzeMedalVAO;
+        break;
+    case silverMedal:
+        program = medalProgram;
+        texture = atlasTexture;
+        vao = silverMedalVAO;
+        break;
+    case goldMedal:
+        program = medalProgram;
+        texture = atlasTexture;
+        vao = goldMedalVAO;
+        break;
+    }
+
+    glUseProgram(program);
+    glm::mat4 trans = glm::mat4(1.0f);
+
+    trans = glm::translate(trans, glm::vec3(posx / screenResX * 2.0f - 1.0f, posy / screenResY * 2.0f - 1.0f, 0.0));
+    trans = glm::scale(trans, glm::vec3(scalex / screenResX, scaley / screenResY, 1.0));
+    trans = glm::rotate(trans, glm::radians(0.0f), glm::vec3(0.0, 0.0, 1.0));
+
+    unsigned int transformLoc = glGetUniformLocation(program, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
