@@ -8,6 +8,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <irrKlang.h>
+using namespace irrklang;
+
+#pragma comment(lib, "irrKlang.lib")
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -59,6 +64,10 @@ int main()
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
+    ISoundEngine* soundEngine = createIrrKlangDevice();
+
+    //SoundEngine->play2D("..\\Resources\\Audio\\die.mp3");
+
     std::fstream scoreFile;
     scoreFile.open("..\\score.txt");
     std::string scoreLine;
@@ -74,7 +83,7 @@ int main()
     // but could have unintended side effects later
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
     renderer.initializeData();
-    Game game(SCREEN_WIDTH, SCREEN_HEIGHT, renderer);
+    Game game(SCREEN_WIDTH, SCREEN_HEIGHT, renderer, soundEngine);
     game.start();
 
     int frames = 0;
@@ -161,8 +170,9 @@ int main()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
+    soundEngine->drop();
     glfwTerminate();
+
     return 0;
 }
 

@@ -3,8 +3,8 @@
 #include "rendering.h"
 #include <random>
 
-Game::Game(unsigned int worx, unsigned int wory, Renderer& render) : 
-	worldSpaceX(worx), worldSpaceY(wory), renderer(render), speed(500.0f), playerVelocity(0.0f), playerAcceleration(-10.0)
+Game::Game(unsigned int worx, unsigned int wory, Renderer& render, irrklang::ISoundEngine* engine) :
+	worldSpaceX(worx), worldSpaceY(wory), renderer(render), speed(500.0f), playerVelocity(0.0f), playerAcceleration(-10.0), soundEngine(engine)
 {
 	// first object is player
 	gameObjects.push_back(GameObject{ 100.0, 300.0, 1.3, 1.3, 0, GameObjectType::player, renderer.playerWidth, renderer.playerHeight });
@@ -37,15 +37,27 @@ void Game::update(std::chrono::microseconds deltaTime)
 	float delta = deltaTime.count() / 1000000.0f;
 
 	// for manual movement
-	gameObjects[0].positionX += playerDirX * speed * delta;
-	gameObjects[0].positionY += playerDirY * speed * delta;
+	//gameObjects[0].positionX += playerDirX * speed * delta;
+	//gameObjects[0].positionY += playerDirY * speed * delta;
 	
 	// gravity + jumping
-	//playerVelocity += playerAcceleration * delta;
-	//gameObjects[0].positionY += playerVelocity;
+	playerVelocity += playerAcceleration * delta;
+	gameObjects[0].positionY += playerVelocity;
 
 	playerDirX = 0;
 	playerDirY = 0;
+
+	// set player rotation based off their velocity
+	std::cout << playerVelocity << std::endl;
+	float velocity = playerVelocity;
+	//if (playerVelocity / 2 < -90.0f)
+	//	velocity = -90.0f;
+
+	gameObjects[0].rotation = 80.0f * sin(12 * velocity * 3.14159265358979323846 / 180);
+	if (gameObjects[0].rotation > maxPlayerRotation)
+		gameObjects[0].rotation = maxPlayerRotation;
+	else if (gameObjects[0].rotation < minPlayerRotation)
+		gameObjects[0].rotation = minPlayerRotation;
 
 	if (isPlayerTouchingGround())
 	{
@@ -90,6 +102,7 @@ void Game::update(std::chrono::microseconds deltaTime)
 	scorePosition -= tubeSpeed * delta;
 	if (scorePosition - gameObjects[0].positionX <= 0)
 	{
+		soundEngine->play2D("..\\Resources\\Audio\\point.mp3");
 		playerScore++;
 		GameObject& tube = gameObjects[2];
 		scorePosition += tube.textureSizeX * tube.scaleX + horizontalDistanceBetweenTubes;
@@ -140,6 +153,7 @@ void Game::gameOver()
 void Game::playerJump()
 {
 	playerVelocity = 3.0f;
+	soundEngine->play2D("..\\Resources\\Audio\\wing.mp3");
 }
 
 void Game::playerMove(int x, int y)

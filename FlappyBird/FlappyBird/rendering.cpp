@@ -357,8 +357,8 @@ void Renderer::drawPlayer(GameObject& player, const std::chrono::microseconds& d
     glUseProgram(playerProgram);
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::translate(trans, glm::vec3(player.positionX / screenResX * 2.0f - 1.0f, player.positionY / screenResY * 2.0f - 1.0f, 0.0f));
-    trans = glm::rotate(trans, glm::radians(player.rotation), glm::vec3(0.0, 0.0, 1.0));
     trans = glm::scale(trans, glm::vec3(player.scaleX / screenResX, player.scaleY / screenResY, 1.0));
+    trans = glm::rotate(trans, glm::radians(player.rotation), glm::vec3(0.0, 0.0, 1.0));
     unsigned int transformLoc = glGetUniformLocation(playerProgram, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     

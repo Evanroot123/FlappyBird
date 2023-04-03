@@ -31,6 +31,9 @@
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{7e04817c-9849-484e-a28e-bfe56426368a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\irrKlang">
+      <UniqueIdentifier>{d2359f0d-d5fe-4486-8e75-dccbff2dff04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -122,6 +125,69 @@
     <ClInclude Include="gameobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ESoundEngineOptions.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ESoundOutputDrivers.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_EStreamModes.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IAudioRecorder.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IAudioStream.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IAudioStreamLoader.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IFileFactory.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IFileReader.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IRefCounted.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_irrKlangTypes.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISound.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISoundDeviceList.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISoundEffectControl.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISoundEngine.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISoundMixedOutputReceiver.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISoundSource.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_ISoundStopEventReceiver.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_IVirtualRefCounted.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_SAudioStreamFormat.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\ik_vec3d.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\irrKlang\include\irrKlang.h">
+      <Filter>Header Files\irrKlang</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\shader4.vs">
@@ -154,5 +220,6 @@
     <None Include="..\Shaders\texture-transform.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="..\Shaders\parallax.vert" />
   </ItemGroup>
 </Project>

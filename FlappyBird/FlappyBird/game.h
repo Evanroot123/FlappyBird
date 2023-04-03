@@ -4,6 +4,7 @@
 #include <chrono>
 #include "gameobject.h"
 #include "rendering.h"
+#include <irrKlang.h>
 
 class Game {
 
@@ -13,6 +14,8 @@ public:
 	float playerAcceleration;
 	int playerDirX;
 	int playerDirY;
+	int maxPlayerRotation = 30.0f;
+	int minPlayerRotation = -90.0f;
 	unsigned int worldSpaceX;
 	unsigned int worldSpaceY;
 	float speed;
@@ -32,8 +35,9 @@ public:
 	bool gameEnd = false;
 
 	Renderer& renderer;
+	irrklang::ISoundEngine* soundEngine;
 
-	Game(unsigned int worx, unsigned int wory, Renderer& render);
+	Game(unsigned int worx, unsigned int wory, Renderer& render, irrklang::ISoundEngine* engine);
 	void start();
 	void update(std::chrono::microseconds deltaTime);
 	void spawnTubes();
