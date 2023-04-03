@@ -28,6 +28,7 @@ public:
 	void drawTube(GameObject& tube);
 	void drawGround(GameObject& ground, const std::chrono::microseconds& deltaTime);
 	void drawBackground();
+	void drawGameStart();
 	void drawScore(float posx, float posy, float scalex, float scaley, int score);
 	void drawUIElement(UIElementType type, float posx, float posy, float scalex, float scaley);
 	void drawGameObjects(std::vector<GameObject>& objects, const std::chrono::microseconds& deltaTime);
@@ -41,6 +42,7 @@ private:
 	unsigned int groundVAO, groundVBO, groundTexture, groundProgram;
 	unsigned int tubeVAO, tubeVBO, tubeTexture, tubeProgram;
 	unsigned int backgroundVAO, backgroundVBO, backgroundTexture, backgroundProgram;
+	unsigned int gameStartVAO, gameStartVBO, gameStartTexture;
 	unsigned int numberVAO, numberVBO, numberTexture0, numberTexture1, numberTexture2, numberTexture3, numberTexture4, numberTexture5, numberTexture6,
 		numberTexture7, numberTexture8, numberTexture9, numberProgram;
 	unsigned int gameOverVAO, gameOverVBO, gameOverTexture, gameOverProgram;

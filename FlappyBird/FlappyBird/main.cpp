@@ -84,7 +84,7 @@ int main()
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
     renderer.initializeData();
     Game game(SCREEN_WIDTH, SCREEN_HEIGHT, renderer, soundEngine);
-    game.start();
+    //game.start();
 
     int frames = 0;
     auto start = std::chrono::steady_clock::now();
@@ -110,7 +110,7 @@ int main()
             frames = 0;
         }
 
-        processInput(window, game);
+        processInput(window, game);        
 
         game.update(duration);
 
@@ -156,6 +156,11 @@ int main()
 
             drawScore(renderer, game.playerScore * endGameScoreDelta, 315.0f, 350.0f);
             drawScore(renderer, highScore, 315.0f, 280.0f);
+        }
+        else if (!game.gameStart)
+        {
+            // display game start screen
+            renderer.drawGameStart();
         }
         else
         {

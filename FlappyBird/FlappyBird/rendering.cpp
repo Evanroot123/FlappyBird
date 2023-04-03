@@ -151,6 +151,19 @@ void Renderer::initializeData()
 
     backgroundProgram = shaderStuff("..\\Shaders\\texture.vert", "..\\Shaders\\texture.frag");
 
+    // game start screen
+    loadImage("..\\Resources\\Sprites\\message.png", gameStartTexture, width, height, true);
+
+    glGenVertexArrays(1, &gameStartVAO);
+    glGenBuffers(1, &gameStartVBO);
+    glBindVertexArray(gameStartVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, gameStartVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(backgroundVertices), backgroundVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     // numbers
     loadImage("..\\Resources\\Sprites\\0.png", numberTexture0, width, height, true);
     loadImage("..\\Resources\\Sprites\\1.png", numberTexture1, width, height, true);
@@ -414,6 +427,15 @@ void Renderer::drawBackground()
     glBindVertexArray(backgroundVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawGameStart()
+{
+    glUseProgram(backgroundProgram);
+    glBindVertexArray(gameStartVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gameStartTexture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 

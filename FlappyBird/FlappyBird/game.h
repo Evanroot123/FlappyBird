@@ -33,6 +33,8 @@ public:
 	int playerScore = 0;
 
 	bool gameEnd = false;
+	bool gameStart = false;
+	bool hasTouchedGround = false;
 
 	Renderer& renderer;
 	irrklang::ISoundEngine* soundEngine;

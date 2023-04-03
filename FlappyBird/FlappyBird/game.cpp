@@ -6,19 +6,26 @@
 Game::Game(unsigned int worx, unsigned int wory, Renderer& render, irrklang::ISoundEngine* engine) :
 	worldSpaceX(worx), worldSpaceY(wory), renderer(render), speed(500.0f), playerVelocity(0.0f), playerAcceleration(-10.0), soundEngine(engine)
 {
-	// first object is player
-	gameObjects.push_back(GameObject{ 100.0, 300.0, 1.3, 1.3, 0, GameObjectType::player, renderer.playerWidth, renderer.playerHeight });
+	//gameObjects.push_back(GameObject{ 100.0, 300.0, 1.3, 1.3, 0, GameObjectType::player, renderer.playerWidth, renderer.playerHeight });
 
 	// tubes
 	//gameObjects.push_back(GameObject{ 200.0, 300.0, 1.0, 1.0, 0, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight });
 	//gameObjects.push_back(GameObject{ 200.0, 300.0, 1.0, 1.0, 180, GameObjectType::tube, renderer.tubeWidth, renderer.tubeHeight });
 
-	// ground
-	gameObjects.push_back(GameObject{ 200.0, 55.0, 1.19, 1.0, 0, GameObjectType::ground, renderer.groundWidth, renderer.groundHeight });
+	//gameObjects.push_back(GameObject{ 200.0, 55.0, 1.19, 1.0, 0, GameObjectType::ground, renderer.groundWidth, renderer.groundHeight });
 }
 
 void Game::start()
 {
+	gameObjects.clear();
+
+	playerScore = 0;
+
+	// first object is player
+	gameObjects.push_back(GameObject{ 100.0, 300.0, 1.3, 1.3, 0, GameObjectType::player, renderer.playerWidth, renderer.playerHeight });
+	// ground
+	gameObjects.push_back(GameObject{ 200.0, 55.0, 1.19, 1.0, 0, GameObjectType::ground, renderer.groundWidth, renderer.groundHeight });
+
 	float ground = gameObjects[1].textureSizeY * gameObjects[1].scaleY;
 	float startingXPosition = worldSpaceX + renderer.tubeWidth / 2.0f;
 
@@ -30,6 +37,30 @@ void Game::start()
 void Game::update(std::chrono::microseconds deltaTime)
 {
 	if (gameEnd)
+	{
+		if (!hasTouchedGround)
+		{
+			float delta = deltaTime.count() / 1000000.0f;
+			// continue updating position and rotation
+			playerVelocity += playerAcceleration * delta;
+			gameObjects[0].positionY += playerVelocity;
+
+			gameObjects[0].rotation = 80.0f * sin(12 * playerVelocity * 3.14159265358979323846 / 180);
+			if (gameObjects[0].rotation > maxPlayerRotation)
+				gameObjects[0].rotation = maxPlayerRotation;
+			else if (gameObjects[0].rotation < minPlayerRotation)
+				gameObjects[0].rotation = minPlayerRotation;
+
+			if (isPlayerTouchingGround())
+			{
+				hasTouchedGround = true;
+			}
+		}
+
+		return;
+	}
+
+	if (!gameStart)
 	{
 		return;
 	}
@@ -48,12 +79,7 @@ void Game::update(std::chrono::microseconds deltaTime)
 	playerDirY = 0;
 
 	// set player rotation based off their velocity
-	std::cout << playerVelocity << std::endl;
-	float velocity = playerVelocity;
-	//if (playerVelocity / 2 < -90.0f)
-	//	velocity = -90.0f;
-
-	gameObjects[0].rotation = 80.0f * sin(12 * velocity * 3.14159265358979323846 / 180);
+	gameObjects[0].rotation = 80.0f * sin(12 * playerVelocity * 3.14159265358979323846 / 180);
 	if (gameObjects[0].rotation > maxPlayerRotation)
 		gameObjects[0].rotation = maxPlayerRotation;
 	else if (gameObjects[0].rotation < minPlayerRotation)
@@ -62,6 +88,7 @@ void Game::update(std::chrono::microseconds deltaTime)
 	if (isPlayerTouchingGround())
 	{
 		std::cout << " hit the ground" << std::endl;
+		hasTouchedGround = true;
 		gameOver();
 	}
 
@@ -75,6 +102,7 @@ void Game::update(std::chrono::microseconds deltaTime)
 			{
 				std::cout << "tube" << std::endl;
 				gameOver();
+				soundEngine->play2D("..\\Resources\\Audio\\die.mp3");
 			}
 		}
 	}
@@ -146,6 +174,8 @@ void Game::gameOver()
 {
 	std::cout << "GAME OVER" << std::endl;
 	gameEnd = true;
+	soundEngine->play2D("..\\Resources\\Audio\\hit.mp3");
+	//gameObjects.clear();
 	// stop updating the scene
 	// show game over + final score
 }
@@ -153,7 +183,23 @@ void Game::gameOver()
 void Game::playerJump()
 {
 	playerVelocity = 3.0f;
-	soundEngine->play2D("..\\Resources\\Audio\\wing.mp3");
+
+	if (!gameStart)
+	{
+		soundEngine->play2D("..\\Resources\\Audio\\swoosh.mp3");
+		gameStart = true;
+		start();
+	}
+	else if (!gameEnd)
+	{
+		soundEngine->play2D("..\\Resources\\Audio\\wing.mp3");
+	}
+	else if (gameEnd)
+	{
+		soundEngine->play2D("..\\Resources\\Audio\\swoosh.mp3");
+		gameStart = false;
+		gameEnd = false;
+	}
 }
 
 void Game::playerMove(int x, int y)
