@@ -32,6 +32,8 @@ void Game::start()
 	spawnTubes();
 
 	scorePosition = startingXPosition;
+
+	hasTouchedGround = false;
 }
 
 void Game::update(std::chrono::microseconds deltaTime)
